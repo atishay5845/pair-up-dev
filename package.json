@@ -1,0 +1,28 @@
+{
+  "name": "pair-up-dev",
+  "version": "1.0.0",
+  "description": "tinder for devps",
+  "keywords": [
+    "node.js",
+    "react.js",
+    "javascript",
+    "backend",
+    "full",
+    "stack"
+  ],
+  "homepage": "https://github.com/atishay5845/pair-up-dev#readme",
+  "bugs": {
+    "url": "https://github.com/atishay5845/pair-up-dev/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/atishay5845/pair-up-dev.git"
+  },
+  "license": "ISC",
+  "author": "Atishay Sodhiya",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
