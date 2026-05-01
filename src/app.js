@@ -1,1 +1,6 @@
-console.log("Starting a new project with Pair Up Dev!");
+const express = require('express');
+const app = express();
+
+app.listen(3000, () => {
+  console.log('Server is running on port 3000');
+});
