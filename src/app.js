@@ -2,10 +2,16 @@ const express = require('express');
 const app = express();
 
 
-app.get("/user",(req,res)=>{
-  console.log(req.query);
-  res.send({firstname:"Atishay",lastname:"Sodhiya"});
-});
+app.get("/user",
+  (req,res)=>{
+  console.log("First callback");
+  // res.send({firstname:"Atishay",lastname:"Sodhiya"});
+  }
+  ,(req,res)=>{
+    console.log("Second callback");
+    res.send("Second callback");
+  }
+);
 
 //works for /abc and /ac  
 app.get(/ab?c/, (req,res)=>{
