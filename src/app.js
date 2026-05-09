@@ -3,9 +3,10 @@ const app = express();
 
 
 app.get("/user",
-  (req,res)=>{
+  (req,res,next)=>{
   console.log("First callback");
   // res.send({firstname:"Atishay",lastname:"Sodhiya"});
+  next();
   }
   ,(req,res)=>{
     console.log("Second callback");
