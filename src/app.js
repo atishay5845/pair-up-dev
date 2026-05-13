@@ -3,7 +3,7 @@ const app = express();
 
 app.get("/admin/getalldata", (req,res)=>{
   //logic to check if the req is auth 
-  const token ="xyz";
+  const token ="xz";
   const isAdminAuthorized = token === "xyz"; //this is just a dummy check, in real scenario we will check the token from the database or some other source
 
   if(isAdminAuthorized){
