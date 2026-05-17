@@ -15,7 +15,6 @@ connectDB()
   //we will use post method to create a user
   app.post('/signup', async (req, res) => {
     const userObj={
-        _id: 3,
         firstName: "Sachin",
         lastName: "tendulkar",
         email: "sachdev@email.com",
