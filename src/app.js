@@ -13,16 +13,20 @@ connectDB()
   });
 
   //we will use post method to create a user
-  app.post('/signup', (req, res) => {
+  app.post('/signup', async (req, res) => {
     const userObj={
-        firstName: "Atishay",
-        lastName: "Sodhiya",
-        email: "atydev@email.com",
-        password: "strongPassword123"
+        _id: 3,
+        firstName: "Sachin",
+        lastName: "tendulkar",
+        email: "sachdev@email.com",
+        password: "strongPassword123",
+        age: 25
     }
+    
 
     const user = new User(userObj); // Create a new user instance using the User model
-    
+    await user.save(); // Save the user to the database
+    res.send("User created successfully");
   })
 
 app.listen(3000, () => {
