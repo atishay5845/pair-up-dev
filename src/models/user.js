@@ -26,5 +26,5 @@ const userSchema = new moongoose.Schema({
 
 //create mongoose model
 
-const User = moongoose.model("User", userSchema);
+const User = moongoose.model("User", userSchema);//
 module.exports = User;
