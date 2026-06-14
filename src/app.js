@@ -21,11 +21,17 @@ connectDB()
         password: "strongPassword123",
         age: 25
     }
+  
     
 
     const user = new User(userObj); // Create a new user instance using the User model
-    await user.save(); // Save the user to the database
-    res.send("User created successfully");
+    try{
+      await user.save(); // Save the user to the database
+      res.send("User created successfully");
+    } catch (error) {
+      console.error('Error creating user:', error);
+      res.status(500).send("Error creating user");
+    }
   })
 
 app.listen(3000, () => {
