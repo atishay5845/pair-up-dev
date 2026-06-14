@@ -12,27 +12,32 @@ connectDB()
     console.error('Failed to connect to MongoDB', err);
   });
 
+  //fetch json data from api postman
+  app.post("/signup", async (req, res) => {
+    console.log(req.body); // Log the request body to see the incoming data
+  }); //it will give undefined because we have not used express.json() middleware to parse the incoming JSON data
+
   //we will use post method to create a user
-  app.post('/signup', async (req, res) => {
-    const userObj={
-        firstName: "Sachin",
-        lastName: "tendulkar",
-        email: "sachdev@email.com",
-        password: "strongPassword123",
-        age: 25
-    }
+  // app.post('/signup', async (req, res) => {
+  //   const userObj={
+  //       firstName: "MS",
+  //       lastName: "Dhoni",
+  //       email: "msdhoni@email.com",
+  //       password: "strongPassword123",
+  //       age: 25
+  //   }
   
     
 
-    const user = new User(userObj); // Create a new user instance using the User model
-    try{
-      await user.save(); // Save the user to the database
-      res.send("User created successfully");
-    } catch (error) {
-      console.error('Error creating user:', error);
-      res.status(500).send("Error creating user");
-    }
-  })
+  //   const user = new User(userObj); // Create a new user instance using the User model
+  //   try{
+  //     await user.save(); // Save the user to the database
+  //     res.send("User created successfully");
+  //   } catch (error) {
+  //     console.error('Error creating user:', error);
+  //     res.status(500).send("Error creating user");
+  //   }
+  // })
 
 app.listen(3000, () => {
   console.log('Server is running on port 3000');
