@@ -16,6 +16,53 @@ app.post('/signup', async (req, res) => {
     res.status(500).send("Error creating user");
   }
 });
+
+//fetching data from database
+app.get('/user', async (req, res) => {
+  const userEmail = req.query.email;
+  try {
+    // .find() always returns an array (e.g., [] or [{...}])
+    const users = await User.find({ email: userEmail }); // This will return an array of users matching the email (could be empty if no match)
+    // if we want obj then we can use findOne() which will return null if no user is found or the user object if found
+    
+    // This check is now safe and correct
+    if (users.length === 0) {
+      return res.status(404).send("User not found");
+    } else {
+      res.send(users); // Sends the array of users
+    }
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).send("Error fetching user");
+  }
+});
+
+app.get('/feed',async (req, res) => {
+  try{
+    const users = await User.find(); // Fetch all users from the database
+    res.send(users); // Send the list of users as the response
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).send("Error fetching users");
+  }
+});
+
+//delete api
+app.delete('/delete-user', async (req, res) => {
+  const userId = req.body.userId; 
+  try {
+    const user = await User.findByIdAndDelete(userId); 
+    
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    
+    res.send("User deleted successfully");
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).send("Error deleting user");
+  }
+});
 connectDB()
   .then(() => {
     console.log('Connected to MongoDB');
