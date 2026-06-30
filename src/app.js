@@ -70,7 +70,12 @@ app.patch('/update-user', async (req, res) => {
   const data = req.body; // Expecting an object with the fields to update
   try {
     // await User.findByIdAndUpdate(userId,data);// This will update the user with the provided data
-      const user = await User.findByIdAndUpdate(userId, data, { new: true }); // This will return the updated user document
+      const user = await User.findByIdAndUpdate(userId, data,
+         { new: true ,
+          runValidators: true,
+          returnDocument: 'after' // This option ensures that the updated document is returned
+
+         }); // This will return the updated user document
     res.send("User updated successfully");
   } catch (error) {
     console.error('Error updating user:', error);
