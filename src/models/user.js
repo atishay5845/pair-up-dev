@@ -48,6 +48,8 @@ const userSchema = new moongoose.Schema({
     type: [String] // Array of strings
   },
 
+},{
+  timestamps: true // This will automatically add createdAt and updatedAt fields
 })
 
 //create mongoose model

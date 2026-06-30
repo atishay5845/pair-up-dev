@@ -83,6 +83,33 @@ app.patch('/update-user', async (req, res) => {
   }
 });
 
+//update certain fields of user only 
+app.patch('/update-certain', async (req, res) => {
+  const userId = req.body.userId;
+  const data = req.body; // Expecting an object with the fields to update
+
+  const allowedUpdates = [ , "age", "gender", "photoUrl", "about", "skills"]; // Define which fields are allowed to be updated
+
+
+  const isUpdateAllowed = Object.keys(data).every((key) => allowedUpdates.includes(key));
+
+  if(!isUpdateAllowed){
+    return res.send("Invalid updates! You can only update age, gender, photoUrl, about, and skills.");
+  }
+  try {
+      const user = await User.findByIdAndUpdate(userId, data,
+         { new: true ,
+          runValidators: true,
+          returnDocument: 'after' // This option ensures that the updated document is returned
+
+         }); // This will return the updated user document
+    res.send("User updated successfully");
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(500).send("Error updating user");
+  }
+});
+
 connectDB()
   .then(() => {
     console.log('Connected to MongoDB');
