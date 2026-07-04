@@ -3,20 +3,59 @@ const express = require('express');
 const connectDB = require('./config/database');
 const User = require('./models/user'); // Import the User model
 const app = express();
-
+const { validateSignupData } = require('./utils/validation'); // Import the validation function
+const bcrypt = require('bcrypt'); // Import bcrypt for password hashing
 app.use(express.json()); // Middleware to parse JSON request bodies
 
 app.post('/signup', async (req, res) => {
-  const user = new User(req.body); // Create a new user instance using the User model
+  //first validate the data
   try {
-    await user.save();
-    res.send("User created successfully");
-  } catch (error) {
-    console.error('Error creating user:', error);
-    res.status(500).send("Error creating user");
-  }
-});
+    validateSignupData(req); // Validate the incoming request data
 
+    
+    //then encrypt the password
+    const {password, firstName, lastName, email, age} = req.body;
+    const passwordHash = await bcrypt.hash(password, 10); 
+    console.log("Password hash:", passwordHash); // Log the hashed password for debugging
+
+    //then save the data to database
+    // Create a new user instance using the User model
+    // const user = new User(req.body); //very bad
+    const user = new User({
+      firstName,
+      lastName,
+      email,
+      password: passwordHash, // Store the hashed password instead of the plain text
+      age
+    });
+
+    await user.save(); // Save the user to the database
+    res.send("User created successfully");
+
+  }catch (error) {
+    res.status(400).send(error.message); // Send a 400 Bad Request response with the error message
+  }
+  
+});
+app.post('/login', async (req, res) => {
+    try{
+      const { email, password } = req.body;
+
+      const user = await User.findOne({ email: email }); // Find the user by email
+      if (!user) {
+        return res.status(404).send("User not found");
+      }
+
+      const isPasswordValid = await bcrypt.compare(password, user.password); // Compare the provided password with the hashed password in the database
+      if (isPasswordValid) {
+        res.send("Login successful");
+      }else{
+        throw new Error("Invalid password");
+      }
+    }catch(error){
+        res.status(400).send(error.message);
+    }
+});
 //fetching data from database
 app.get('/user', async (req, res) => {
   const userEmail = req.query.email;
