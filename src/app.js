@@ -3,9 +3,10 @@ const express = require('express');
 const connectDB = require('./config/database');
 const User = require('./models/user'); // Import the User model
 const app = express();
-const { validateSignupData } = require('./utils/validation'); // Import the validation function
+const { validateSignupData } = require('./utils/validation'); // Import the validation 
 const cookieParser = require('cookie-parser'); // Import cookie-parser middleware
 const bcrypt = require('bcrypt'); // Import bcrypt for password hashing
+const jwt = require('jsonwebtoken'); // Import jsonwebtoken for token generation
 app.use(express.json()); // Middleware to parse JSON request bodies
 app.use(cookieParser()); // Middleware to parse cookies
 app.post('/signup', async (req, res) => {
@@ -50,8 +51,9 @@ app.post('/login', async (req, res) => {
 
       const isPasswordValid = await bcrypt.compare(password, user.password); // Compare the provided password with the hashed password in the database
       if (isPasswordValid) {
-        res.cookie("token", "xyz");
-
+        const token = await jwt.sign({ userId: user._id },"aty123");
+        console.log("Generated token:", token); // Log the generated token for debugging
+        res.cookie("token", token);
         res.send("Login successful");
       }else{
         throw new Error("Invalid password");
@@ -65,7 +67,7 @@ app.get('/profile', async (req, res) => {
   const {token} = cookies;
 
   //validate token 
-  
+
   console.log("Cookie:", token); // Log the cookie value for debugging 
   res.send("Profile page");
 });
