@@ -67,9 +67,13 @@ app.get('/profile', async (req, res) => {
   const {token} = cookies;
 
   //validate token 
+  const decodedMesssage = await jwt.verify(token, "aty123");
+  console.log("Decoded message:", decodedMesssage); // Log the decoded message for debugging
+  // want to show name and email of user in profile page
+  const user = await User.findById(decodedMesssage.userId);
 
-  console.log("Cookie:", token); // Log the cookie value for debugging 
-  res.send("Profile page");
+  console.log("User found:", user); // Log the user object for debugging
+  res.send("Profile page of user: " + user.firstName + " " + user.lastName + ", Email: " + user.email);
 });
 //fetching data from database
 app.get('/user', async (req, res) => {
