@@ -4,9 +4,10 @@ const connectDB = require('./config/database');
 const User = require('./models/user'); // Import the User model
 const app = express();
 const { validateSignupData } = require('./utils/validation'); // Import the validation function
+const cookieParser = require('cookie-parser'); // Import cookie-parser middleware
 const bcrypt = require('bcrypt'); // Import bcrypt for password hashing
 app.use(express.json()); // Middleware to parse JSON request bodies
-
+app.use(cookieParser()); // Middleware to parse cookies
 app.post('/signup', async (req, res) => {
   //first validate the data
   try {
@@ -41,6 +42,7 @@ app.post('/login', async (req, res) => {
     try{
       const { email, password } = req.body;
 
+      
       const user = await User.findOne({ email: email }); // Find the user by email
       if (!user) {
         return res.status(404).send("User not found");
@@ -48,6 +50,8 @@ app.post('/login', async (req, res) => {
 
       const isPasswordValid = await bcrypt.compare(password, user.password); // Compare the provided password with the hashed password in the database
       if (isPasswordValid) {
+        res.cookie("token", "xyz");
+
         res.send("Login successful");
       }else{
         throw new Error("Invalid password");
@@ -55,6 +59,15 @@ app.post('/login', async (req, res) => {
     }catch(error){
         res.status(400).send(error.message);
     }
+});
+app.get('/profile', async (req, res) => {
+  const cookies = req.cookies;
+  const {token} = cookies;
+
+  //validate token 
+  
+  console.log("Cookie:", token); // Log the cookie value for debugging 
+  res.send("Profile page");
 });
 //fetching data from database
 app.get('/user', async (req, res) => {
