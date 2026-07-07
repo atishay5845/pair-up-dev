@@ -7,6 +7,7 @@ const { validateSignupData } = require('./utils/validation'); // Import the vali
 const cookieParser = require('cookie-parser'); // Import cookie-parser middleware
 const bcrypt = require('bcrypt'); // Import bcrypt for password hashing
 const jwt = require('jsonwebtoken'); // Import jsonwebtoken for token generation
+const { userAuth } = require('./middlewares/auth'); // Import the userAuth middleware
 app.use(express.json()); // Middleware to parse JSON request bodies
 app.use(cookieParser()); // Middleware to parse cookies
 app.post('/signup', async (req, res) => {
@@ -62,18 +63,44 @@ app.post('/login', async (req, res) => {
         res.status(400).send(error.message);
     }
 });
-app.get('/profile', async (req, res) => {
-  const cookies = req.cookies;
-  const {token} = cookies;
+app.get('/profile',userAuth, async (req, res) => {
+    try {
+        // Get token from cookies
+        const { token } = req.cookies;
 
-  //validate token 
-  const decodedMesssage = await jwt.verify(token, "aty123");
-  console.log("Decoded message:", decodedMesssage); // Log the decoded message for debugging
-  // want to show name and email of user in profile page
-  const user = await User.findById(decodedMesssage.userId);
+        if (!token) {
+            return res.status(401).send("Authentication token is missing.");
+        }
 
-  console.log("User found:", user); // Log the user object for debugging
-  res.send("Profile page of user: " + user.firstName + " " + user.lastName + ", Email: " + user.email);
+        // Verify JWT
+        const decodedMessage = jwt.verify(token, "aty123");
+        console.log("Decoded Message:", decodedMessage);
+
+        // Fetch user from database
+        const user = await User.findById(decodedMessage.userId);
+
+        if (!user) {
+            return res.status(404).send("User not found.");
+        }
+
+        console.log("User Found:", user);
+
+        // Send profile data
+        res.status(200).json({
+            message: "Profile fetched successfully",
+            profile: {
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email
+            }
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(401).json({
+            message: "Invalid or expired token."
+        });
+    }
 });
 //fetching data from database
 app.get('/user', async (req, res) => {
