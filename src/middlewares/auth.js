@@ -7,7 +7,9 @@ const userAuth = async (req,res,next)=>{
     if(!token){
         throw new Error("No token provided");
     }
-    const decodedObj = await jwt.verify(token, "aty123");
+    const decodedObj = await jwt.verify(token, "aty123" ,{
+      expiresIn: "1h" // Set the token expiration time to 1 hour
+    });
     const id = decodedObj.userId;
 
   //validate the token
