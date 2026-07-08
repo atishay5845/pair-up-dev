@@ -15,6 +15,7 @@ const userAuth = async (req,res,next)=>{
   if(!user){
     throw new Error("User not found");
   }
+  req.user = user; // Attach the user object to the request for further use
   next();
 }catch(err){
     res.status(400).send("Unauthorized: " + err.message);

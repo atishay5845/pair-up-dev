@@ -65,25 +65,7 @@ app.post('/login', async (req, res) => {
 });
 app.get('/profile',userAuth, async (req, res) => {
     try {
-        // Get token from cookies
-        const { token } = req.cookies;
-
-        if (!token) {
-            return res.status(401).send("Authentication token is missing.");
-        }
-
-        // Verify JWT
-        const decodedMessage = jwt.verify(token, "aty123");
-        console.log("Decoded Message:", decodedMessage);
-
-        // Fetch user from database
-        const user = await User.findById(decodedMessage.userId);
-
-        if (!user) {
-            return res.status(404).send("User not found.");
-        }
-
-        console.log("User Found:", user);
+        const user = req.user;
 
         // Send profile data
         res.status(200).json({
