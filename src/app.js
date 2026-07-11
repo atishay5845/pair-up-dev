@@ -50,11 +50,13 @@ app.post('/login', async (req, res) => {
         return res.status(404).send("User not found");
       }
 
-      const isPasswordValid = await bcrypt.compare(password, user.password); // Compare the provided password with the hashed password in the database
+      // const isPasswordValid = await bcrypt.compare(password, user.password); // Compare the provided password with the hashed password in the database
+      const isPasswordValid = await user.validatePassword(password); // Use the validatePassword method to check the password
       if (isPasswordValid) {
-        const token = await jwt.sign({ userId: user._id },"aty123");
+        // const token = await jwt.sign({ userId: user._id },"aty123");
+        const token = await user.getJWT(); // Use the getJWT method to generate the token
         console.log("Generated token:", token); // Log the generated token for debugging
-        res.cookie("token", token);
+        res.cookie("token", token , { httpOnly: true, maxAge: 3600000 }); // Set the token in an HTTP-only cookie with a 1-hour expiration for production use https: true, sameSite: 'Strict' });
         res.send("Login successful");
       }else{
         throw new Error("Invalid password");
@@ -83,6 +85,11 @@ app.get('/profile',userAuth, async (req, res) => {
             message: "Invalid or expired token."
         });
     }
+});
+//anyone can send connection request to anyone but if we add userAuth middleware then only logged in user can send connection request .
+app.post('/sendConnectionRequest', async (req, res) => {
+  console.log("sending connection request");
+  res.send("Connection request sent successfully");
 });
 //fetching data from database
 app.get('/user', async (req, res) => {
