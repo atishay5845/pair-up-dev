@@ -1,5 +1,6 @@
 const moongoose = require("mongoose");
-
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const userSchema = new moongoose.Schema({
   firstName: {
     type: String,

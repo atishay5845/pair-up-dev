@@ -8,8 +8,17 @@ const cookieParser = require('cookie-parser'); // Import cookie-parser middlewar
 const bcrypt = require('bcrypt'); // Import bcrypt for password hashing
 const jwt = require('jsonwebtoken'); // Import jsonwebtoken for token generation
 const { userAuth } = require('./middlewares/auth'); // Import the userAuth middleware
+const cors = require("cors");
+
+app.use(cors({
+  origin:"http://localhost:5173", // white listing this domain
+  credentials:true
+}));
 app.use(express.json()); // Middleware to parse JSON request bodies
 app.use(cookieParser()); // Middleware to parse cookies
+
+
+
 app.post('/signup', async (req, res) => {
   //first validate the data
   try {
@@ -57,7 +66,7 @@ app.post('/login', async (req, res) => {
         const token = await user.getJWT(); // Use the getJWT method to generate the token
         console.log("Generated token:", token); // Log the generated token for debugging
         res.cookie("token", token , { httpOnly: true, maxAge: 3600000 }); // Set the token in an HTTP-only cookie with a 1-hour expiration for production use https: true, sameSite: 'Strict' });
-        res.send("Login successful");
+        res.send(user);
       }else{
         throw new Error("Invalid password");
       }
