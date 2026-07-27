@@ -1,7 +1,9 @@
-const moongoose = require("mongoose");
+const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const userSchema = new moongoose.Schema({
+const { jwtExpiresIn, jwtSecret } = require("../config/env");
+
+const userSchema = new mongoose.Schema({
   firstName: {
     type: String,
     required: true,
@@ -26,7 +28,7 @@ const userSchema = new moongoose.Schema({
   },
   age:{
     type: Number,
-    required: true,
+    min: 18,
   }
   ,gender:{
     type: String,
@@ -50,13 +52,19 @@ const userSchema = new moongoose.Schema({
   },
 
 },{
-  timestamps: true // This will automatically add createdAt and updatedAt fields
-})
+  timestamps: true,
+  toJSON: {
+    transform: (_document, returnedObject) => {
+      delete returnedObject.password;
+      delete returnedObject.__v;
+      return returnedObject;
+    },
+  },
+});
 //method to generate JWT token for the user moongoose handler methods
 userSchema.methods.getJWT = async function() {
-  const user = this; // 'this' refers to the user document instance
-  const token = await jwt.sign({ userId: this._id }, "aty123", {
-    expiresIn: "1h" // Set the token expiration time to 1 hour
+  const token = jwt.sign({ userId: this._id }, jwtSecret, {
+    expiresIn: jwtExpiresIn,
   });
   return token;
 }
@@ -67,5 +75,5 @@ userSchema.methods.validatePassword = async function(password) {
   return isPasswordValid;
 }
 //create mongoose model
-const User = moongoose.model("User", userSchema);//
+const User = mongoose.model("User", userSchema);
 module.exports = User;
