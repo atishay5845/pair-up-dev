@@ -1,157 +1,130 @@
 const express = require("express");
-const cookieParser = require("cookie-parser");
-const cors = require("cors");
-const bcrypt = require("bcrypt");
-
 const connectDB = require("./config/database");
-const { corsOrigin, isProduction, port } = require("./config/env");
-const { userAuth } = require("./middlewares/auth");
-const User = require("./models/user");
-const { validateLoginData, validateSignupData } = require("./utils/validation");
-
 const app = express();
-const allowedProfileUpdates = [
-  "firstName",
-  "lastName",
-  "age",
-  "gender",
-  "photoUrl",
-  "about",
-  "skills",
-];
+const cookieParser = require("cookie-parser");
+const { port } = require("./config/env");
+// const { corsOrigin, isProduction, port } = require("./config/env");
 
-app.disable("x-powered-by");
-app.use(cors({ origin: corsOrigin, credentials: true }));
-app.use(express.json({ limit: "10kb" }));
-app.use(cookieParser());
+app.use(express.json());//it is a middleware that parses the incoming request body in a JSON format.
 
-const getAllowedUpdates = (data) => {
-  const updates = Object.keys(data);
-  if (!updates.length || !updates.every((key) => allowedProfileUpdates.includes(key))) {
-    throw new Error("Invalid updates. Only profile fields can be updated.");
-  }
+app.use(cookieParser());//it is a middleware that parses the incoming request cookies in a JSON format.
 
-  return Object.fromEntries(updates.map((key) => [key, data[key]]));
-};
+const authRouter = require("./routes/auth");
+const profileRouter = require("./routes/profile");
+const requestRouter = require("./routes/request");
 
-app.post("/signup", async (req, res, next) => {
-  try {
-    validateSignupData(req);
-    const { password, firstName, lastName, email, age } = req.body;
-    const passwordHash = await bcrypt.hash(password, 12);
-    const user = await User.create({ firstName, lastName, email, password: passwordHash, age });
+app.use("/", authRouter);
+app.use("/", profileRouter);
+app.use("/", requestRouter);
 
-    res.status(201).json({ message: "User created successfully", user });
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.post("/login", async (req, res, next) => {
-  try {
-    validateLoginData(req);
-    const email = req.body.email.toLowerCase();
-    const user = await User.findOne({ email });
-    if (!user || !(await user.validatePassword(req.body.password))) {
-      return res.status(401).json({ message: "Invalid email or password" });
-    }
-
-    const token = await user.getJWT();
-    res.cookie("token", token, {
-      httpOnly: true,
-      maxAge: 60 * 60 * 1000,
-      sameSite: "lax",
-      secure: isProduction,
-    });
-    res.json(user);
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.get("/profile", userAuth, (req, res) => {
-  res.json({
-    message: "Profile fetched successfully",
-    profile: req.user,
+connectDB().then(() => {
+  console.log("Connected to database");
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
   });
+}).catch((error) => {
+  console.error("Failed to connect to database", error);
+  process.exit(1);
 });
+// const allowedProfileUpdates = [
+//   "firstName",
+//   "lastName",
+//   "age",
+//   "gender",
+//   "photoUrl",
+//   "about",
+//   "skills",
+// ];
 
-app.post("/sendConnectionRequest", userAuth, (_req, res) => {
-  res.json({ message: "Connection request sent successfully" });
-});
+// app.disable("x-powered-by");
+// app.use(cors({ origin: corsOrigin, credentials: true }));
+// app.use(express.json({ limit: "10kb" }));
+// app.use(cookieParser());
 
-app.get("/user", userAuth, async (req, res, next) => {
-  try {
-    const users = await User.find({ email: req.query.email?.toLowerCase() }).select("-password -__v");
-    if (!users.length) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    res.json(users);
-  } catch (error) {
-    next(error);
-  }
-});
+// const getAllowedUpdates = (data) => {
+//   const updates = Object.keys(data);
+//   if (!updates.length || !updates.every((key) => allowedProfileUpdates.includes(key))) {
+//     throw new Error("Invalid updates. Only profile fields can be updated.");
+//   }
 
-app.get("/feed", userAuth, async (_req, res, next) => {
-  try {
-    const users = await User.find().select("-password -__v");
-    res.json(users);
-  } catch (error) {
-    next(error);
-  }
-});
+//   return Object.fromEntries(updates.map((key) => [key, data[key]]));
+// };
 
-app.delete("/delete-user", userAuth, async (_req, res, next) => {
-  try {
-    await User.findByIdAndDelete(_req.user._id);
-    res.json({ message: "User deleted successfully" });
-  } catch (error) {
-    next(error);
-  }
-});
 
-const updateProfile = async (req, res, next) => {
-  try {
-    const updates = getAllowedUpdates(req.body);
-    const user = await User.findByIdAndUpdate(req.user._id, updates, {
-      new: true,
-      runValidators: true,
-    });
-    res.json({ message: "User updated successfully", user });
-  } catch (error) {
-    next(error);
-  }
-};
 
-app.patch("/update-user", userAuth, updateProfile);
-app.patch("/update-certain", userAuth, updateProfile);
 
-app.use((_req, res) => {
-  res.status(404).json({ message: "Route not found" });
-});
+// app.get("/user", userAuth, async (req, res, next) => {
+//   try {
+//     const users = await User.find({ email: req.query.email?.toLowerCase() }).select("-password -__v");
+//     if (!users.length) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+//     res.json(users);
+//   } catch (error) {
+//     next(error);
+//   }
+// });
 
-app.use((error, _req, res, _next) => {
-  if (error.name === "ValidationError" || error.name === "CastError") {
-    return res.status(400).json({ message: error.message });
-  }
-  if (error.code === 11000) {
-    return res.status(409).json({ message: "An account with that email already exists" });
-  }
+// app.get("/feed", userAuth, async (_req, res, next) => {
+//   try {
+//     const users = await User.find().select("-password -__v");
+//     res.json(users);
+//   } catch (error) {
+//     next(error);
+//   }
+// });
 
-  console.error(error);
-  res.status(500).json({ message: "Internal server error" });
-});
+// app.delete("/delete-user", userAuth, async (_req, res, next) => {
+//   try {
+//     await User.findByIdAndDelete(_req.user._id);
+//     res.json({ message: "User deleted successfully" });
+//   } catch (error) {
+//     next(error);
+//   }
+// });
 
-const startServer = async () => {
-  await connectDB();
-  app.listen(port, () => console.log(`Server is running on port ${port}`));
-};
+// const updateProfile = async (req, res, next) => {
+//   try {
+//     const updates = getAllowedUpdates(req.body);
+//     const user = await User.findByIdAndUpdate(req.user._id, updates, {
+//       new: true,
+//       runValidators: true,
+//     });
+//     res.json({ message: "User updated successfully", user });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
-if (require.main === module) {
-  startServer().catch((error) => {
-    console.error("Failed to start server", error);
-    process.exit(1);
-  });
-}
+// app.patch("/update-user", userAuth, updateProfile);
+// app.patch("/update-certain", userAuth, updateProfile);
 
-module.exports = { app, startServer };
+// app.use((_req, res) => {
+//   res.status(404).json({ message: "Route not found" });
+// });
+
+// app.use((error, _req, res, _next) => {
+//   if (error.name === "ValidationError" || error.name === "CastError") {
+//     return res.status(400).json({ message: error.message });
+//   }
+//   if (error.code === 11000) {
+//     return res.status(409).json({ message: "An account with that email already exists" });
+//   }
+
+//   console.error(error);
+//   res.status(500).json({ message: "Internal server error" });
+// });
+
+// const startServer = async () => {
+//   await connectDB();
+//   app.listen(port, () => console.log(`Server is running on port ${port}`));
+// };
+
+// if (require.main === module) {
+//   startServer().catch((error) => {
+//     console.error("Failed to start server", error);
+//     process.exit(1);
+//   });
+// }
+
+// module.exports = { app, startServer };
