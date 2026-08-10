@@ -23,6 +23,12 @@ const connectionRequestSchema = new mongoose.Schema({
     timestamps: true,
 });
 
+connectionRequestSchema.index({ fromUserId: 1 });// ascending
+
+// when query is connectionRequests.find({fromUserId: 1, toUserId: 1});
+//compund index
+// connectionRequestSchema.index({fromUserId: 1, toUserId: 1});
+
 //pre save middleware to check if fromUserId and toUserId are same
 // connectionRequestSchema.pre("save", function (next) {
 //     if (this.fromUserId.toString() === this.toUserId.toString()) {
@@ -30,6 +36,7 @@ const connectionRequestSchema = new mongoose.Schema({
 //     }
 //     next();
 // });
+
 
 
 const ConnectionRequestModel =
