@@ -26,32 +26,32 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  age:{
+  age: {
     type: Number,
     min: 18,
   }
-  ,gender:{
+  , gender: {
     type: String,
     //custome validation 
     validate: {
-      validator: function(v) {
+      validator: function (v) {
         return /^(male|female|other)$/.test(v);
       },
       message: 'Please enter a valid gender'
     }
   },
-  photoUrl:{
+  photoUrl: {
     type: String
   },
-  about:{
+  about: {
     type: String,
     default: "This is a default about me text. Please update your profile to add more information about yourself."
   },
-  skills:{
+  skills: {
     type: [String] // Array of strings
   },
 
-},{
+}, {
   timestamps: true,
   toJSON: {
     transform: (_document, returnedObject) => {
@@ -61,15 +61,18 @@ const userSchema = new mongoose.Schema({
     },
   },
 });
+
+userSchema.index({ firstName: 1 });
+
 //method to generate JWT token for the user moongoose handler methods
-userSchema.methods.getJWT = async function() {
+userSchema.methods.getJWT = async function () {
   const token = jwt.sign({ userId: this._id }, jwtSecret, {
     expiresIn: jwtExpiresIn,
   });
   return token;
 }
 
-userSchema.methods.validatePassword = async function(password) {
+userSchema.methods.validatePassword = async function (password) {
   const user = this;
   const isPasswordValid = await bcrypt.compare(password, user.password);
   return isPasswordValid;
