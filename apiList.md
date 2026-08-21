@@ -11,8 +11,6 @@
 - PATCH /profile/password // Forgot password API
 
 ## connectionRequestRouter
-- POST /request/send/interseted/:userId
-- POST /request/send/ignored/:userId
 - POST /request/send/:status/:userId 
 - POST /request/review/:status/:requestId
 

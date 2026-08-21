@@ -15,7 +15,7 @@ userRouter.get("/user/requests/received", userAuth, async (req, res) => {
         const connectionRequest = await ConnectionRequest.find({
             toUserId: loggedInUser._id,
             status: "interested"
-        }).populate("fromUserId", "firstName lastName");
+        }).populate("fromUserId", "firstName lastName photoUrl age gender about skills");
         if (!connectionRequest) {
             return res.status(404).send("No Connection Request Found!");
         }
@@ -25,6 +25,23 @@ userRouter.get("/user/requests/received", userAuth, async (req, res) => {
             data: connectionRequest
         });
 
+    } catch (err) {
+        res.status(400).send("error: " + err.message);
+    }
+
+});
+
+
+userRouter.get("/user/connections", userAuth, async (req, res) => {
+    try {
+        const loggedInUser = req.user;
+        const connectionRequests = new ConnectionRequest.find({
+            $or: [
+                { toUserId: loggedInUser._id, status: "accepted" },
+                { fromUserId: loggedInUser._id, status: "accepted" }
+            ]
+        }).populate("fromUserId", USER_SAFE_DATA)
+            .populate("toUserId", USER_SAFE_DATA);
     } catch (err) {
         res.status(400).send("error: " + err.message);
     }
