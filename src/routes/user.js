@@ -1,8 +1,9 @@
 const express = require("express");
 const { userAuth } = require("../middlewares/auth");
-const { Connection } = require("mongoose");
+const { Connection, set } = require("mongoose");
 const userRouter = express.Router();
 const ConnectionRequest = require("../models/connectionRequest");
+const User = require("../models/user");
 // ## userRouter
 // - GET /user/requests/received
 // - GET /user/connections
@@ -70,25 +71,43 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
 });
 
 
-//feed apis 
+// Feed API
 userRouter.get("/feed", userAuth, async (req, res) => {
     try {
-        // user should see all user card accept 
-        //1.his own 
-        //2.his connections
-        //3.ignored people 
-        //4.people who have ignored you
-        //5.people to whom request already send
-        //6.people who have sent you request
-        //7.people who have rejected you
-
         const loggedInUser = req.user;
-        //find all connection request (send + recieved)
 
+        // Find all connection requests sent or received by the logged-in user
+        const connectionRequests = await ConnectionRequest.find({
+            $or: [
+                { fromUserId: loggedInUser._id },
+                { toUserId: loggedInUser._id }
+            ]
+        }).select("fromUserId toUserId");
+
+        // Store all users that should NOT appear in the feed
+        const hideUsersFromFeed = new Set();
+
+        connectionRequests.forEach((request) => {
+            hideUsersFromFeed.add(request.fromUserId.toString());
+            hideUsersFromFeed.add(request.toUserId.toString());
+        });
+
+        // Get users who are not part of any existing connection request
+        // and are not the logged-in user
+        const users = await User.find({
+            _id: {
+                $nin: Array.from(hideUsersFromFeed),
+                $ne: loggedInUser._id
+            }
+        }).select("-password");
+
+        res.json({
+            message: "Feed Fetched Successfully!",
+            data: users
+        });
 
     } catch (err) {
         res.status(400).send("error: " + err.message);
     }
-
-})
+});
 module.exports = userRouter;
