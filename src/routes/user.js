@@ -99,7 +99,7 @@ userRouter.get("/feed", userAuth, async (req, res) => {
                 $nin: Array.from(hideUsersFromFeed),
                 $ne: loggedInUser._id
             }
-        }).select("-password");
+        }).select(USER_SAFE_DATA).skip().limit(10);
 
         res.json({
             message: "Feed Fetched Successfully!",
