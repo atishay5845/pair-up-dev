@@ -1,8 +1,8 @@
 const express = require("express");
 
 const profileRouter = express.Router();
-const { userAuth } = require("../middlewares/auth");
-const { validateEditProfileData } = require("../utils/validation");
+const { userAuth } = require("src/middlewares/auth");
+const { validateEditProfileData } = require("src/utils/validation");
 profileRouter.get("/profile/view", userAuth, (req, res) => {
   res.json({
     message: "Profile fetched successfully",

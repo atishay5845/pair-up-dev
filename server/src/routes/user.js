@@ -1,9 +1,9 @@
 const express = require("express");
-const { userAuth } = require("../middlewares/auth");
+const { userAuth } = require("src/middlewares/auth");
 const { Connection, set } = require("mongoose");
 const userRouter = express.Router();
 const ConnectionRequest = require("../models/connectionRequest");
-const User = require("../models/user");
+const User = require("src/models/user");
 // ## userRouter
 // - GET /user/requests/received
 // - GET /user/connections
@@ -77,6 +77,7 @@ userRouter.get("/feed", userAuth, async (req, res) => {
         const loggedInUser = req.user;
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
+        limit = limit > 50 ? 50 : limit;
         const skip = (page - 1) * limit;
 
         // Find all connection requests sent or received by the logged-in user
