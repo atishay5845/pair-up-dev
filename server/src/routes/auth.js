@@ -1,10 +1,10 @@
 const express = require("express");
 const authRouter = express.Router();
 
-const { validateSignUpData, validateLoginData } = require("src/utils/validation");
-const User = require("src/models/user");
+const { validateSignUpData, validateLoginData } = require("../utils/validation");
+const User = require("../models/user");
 const bcrypt = require("bcrypt");
-const { isProduction } = require("src/config/env");
+const { isProduction } = require("../config/env");
 
 
 authRouter.post("/signup", async (req, res) => {

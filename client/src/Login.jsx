@@ -16,13 +16,13 @@ const Login = () => {
     try {
       setErrorMessage("");
       const res = await axios.post(`${BASE_URL}/login`, {
-        emailId,
+        email: emailId,
         password
       }, { withCredentials: true });
       dispatch(addUser(res.data));
       return navigate("/");
     } catch (err) {
-      setErrorMessage(err?.response?.data || "Something went wrong. Please try again.");
+      setErrorMessage(err?.response?.data?.message || (typeof err?.response?.data === 'string' ? err.response.data : "") || "Something went wrong. Please try again.");
       console.log(err);
     }
   }

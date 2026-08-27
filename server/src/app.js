@@ -1,18 +1,25 @@
 const express = require("express");
-const connectDB = require("src/config/database");
+const connectDB = require("./config/database");
 const app = express();
 const cookieParser = require("cookie-parser");
-const { port } = require("src/config/env");
+const cors = require("cors");
+const { port } = require("./config/env");
 // const { corsOrigin, isProduction, port } = require("./config/env");
 
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 app.use(express.json());//it is a middleware that parses the incoming request body in a JSON format.
 
 app.use(cookieParser());//it is a middleware that parses the incoming request cookies in a JSON format.
 
-const authRouter = require("src/routes/auth");
-const profileRouter = require("src/routes/profile");
-const requestRouter = require("src/routes/request");
-const userRouter = require("src/routes/user");
+const authRouter = require("./routes/auth");
+const profileRouter = require("./routes/profile");
+const requestRouter = require("./routes/request");
+const userRouter = require("./routes/user");
 
 app.use("/", authRouter);
 app.use("/", profileRouter);

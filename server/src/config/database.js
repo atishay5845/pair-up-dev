@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { mongoUri } = require("src/config/env");
+const { mongoUri } = require("./env");
 
 const connectDB = async () => {
   try {
@@ -10,5 +10,6 @@ const connectDB = async () => {
     throw error;
   }
 };
+
 
 module.exports = connectDB;

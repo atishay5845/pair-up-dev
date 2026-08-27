@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { jwtExpiresIn, jwtSecret } = require("src/config/env");
+const { jwtExpiresIn, jwtSecret } = require("../config/env");
 
 const userSchema = new mongoose.Schema({
   firstName: {
