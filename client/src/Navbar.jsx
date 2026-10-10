@@ -4,6 +4,7 @@ import { BASE_URL } from './utils/constants';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { removeUser } from './utils/userSlice';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 const Navbar = () => {
@@ -47,7 +48,7 @@ const Navbar = () => {
                   <span className="badge">New</span>
                 </a>
               </li>
-              <li><a>Settings</a></li>
+              <li><Link to="/connections">Connections</Link></li>
               <li><a onClick={handleLogout}>Logout</a></li>
             </ul>
           </div>
